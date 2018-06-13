@@ -6,16 +6,16 @@ var express = require('express'),
     pg = require('pg'),
     app = express();
 
-    /// DB Connect String
-    var connect = "postgres://jwsummers:123456@localhost/recipeBookDB";
-    
-
-/* const config = {
-    user: 'jwsummers',
-    database: 'recipeBookDB',
-    password: '123456',
-    port: 5432
-}; */
+    // DB Connect String
+    var config = {
+        user: 'Jwsummers',
+        database: 'recipeBookDB', 
+        password: '123456', 
+        port: 5432, 
+        max: 10, // max number of connection can be open to database
+        idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
+      };
+    const pool = new pg.Pool(config);
 
     // Assign Dust Engine to .dust Files
     app.engine('dust', cons.dust);
@@ -31,27 +31,9 @@ var express = require('express'),
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
 
-    const pool = new pg.Pool(connect);
-
-    app.get('/', (req, res, next) => {
-        // PG Connect
-       pool.connect(function (err, client, done) {
-           if (err) {
-            return console.error('error fetching client from pool', err);
-           }
-           client.query('SELECT * FROM recipes', function (err, result) {
-                if (err) {
-                    return console.error('error running query', err);
-                }
-                res.render('index', {recipes: result.rows});
-                done();
-           })
-       })
-    });
-
-    /* app.get('/', function(req, res){
-         PG Connect
-        pg.connect(connect, function(err, client, done) {
+    app.get('/', function(req, res){
+        //PG Connect
+        pool.connect(function(err, client, done) {
             if(err) {
                 return console.error('error fetching client from pool', err);
             }
@@ -62,8 +44,8 @@ var express = require('express'),
                 res.render('index', {recipes: result.rows});
                 done();
             });
-        }); 
-});*/
+        });     
+    });
     
     // Server
     app.listen(3000, function() {
